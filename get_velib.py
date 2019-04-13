@@ -89,7 +89,7 @@ def generate_bar_city(df):
     ),
     go.Bar(
         x=df.index,
-        y=df.available_bike_stands,
+        y=df.status,
         name='# Distinct Access Point ',
         marker=go.bar.Marker()
     ),
@@ -146,6 +146,17 @@ def generate_range_slider():
         ),
         html.Div(style= {'margin':'30px'})
     ])
+
+def generate_radio_items_order_city():
+    return dcc.RadioItems(
+            options=[
+                {'label': 'A-Z Order', 'value': 'AZ'},
+                {'label': 'Filter Order', 'value': 'filter'},
+            ],
+            value='AZ',
+            labelStyle={'display': 'inline-block', 'marginRight': '10px'},
+            style= {'textAlign': 'center'}) # 'wordSpacing': '10px'
+    # ])
 
 def generate_map(df_updated):
     colors = {'open':'green', 'closed':'red'}
@@ -243,6 +254,7 @@ app.layout = html.Div(children=[
         generate_range_slider(),
         generate_table(df),
         generate_bar_city(df_city),
+        generate_radio_items_order_city(),
         overall_figures(),
         dcc.Graph(id='live-update-graph',style={'width':1200}),
         generate_map(df_updated),
@@ -299,7 +311,8 @@ def update_graph(n_intervals):
     dash.dependencies.Output('text-content', 'children'),
     [dash.dependencies.Input('map', 'hoverData')])
 def update_text(hoverData):
-    s = df_updated[df_updated['name'] == hoverData['points'][0]['customdata']]
+    if hoverData['points'][0]['customdata'] != None: 
+        s = df_updated[df_updated['name'] == hoverData['points'][0]['customdata']]
     # print(hoverData)
     # print(df_updated['lat'].loc[df_updated.status == 'OPEN'])
     return html.Div(
