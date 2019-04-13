@@ -117,46 +117,71 @@ def overall_figures():
 
 
 def generate_dropdown():
-    return dcc.Dropdown(
-              id='dropdown',
-              options=city_options,
-        value=[],
-        multi=True
-    )
+    return html.Div([
+        dcc.Dropdown(
+            id='dropdown',
+            options=city_options,
+            value=[],
+            multi=True
+        ),
+        html.Div(style= {'margin':'10px'})
+    ])
 
 def generate_range_slider():
-    return dcc.RangeSlider(
+    return html.Div([
+        dcc.RangeSlider(
         id='range-slider',
         min=0,
-        max=69,
+        max=70,
         value=[0,50],
-#         marks={
-#               0: {'label': 'Empty Bike Stand', 'style': {'color': '#f50'}},
-#               20: {'label': '20'},
-#               40: {'label': '40'},
-#               69: {'label': '69', 'style': {'color': '#77b0b1'}}
-#     },        value=[min, max],
-        )
+        marks={
+              '0': {'label': '0', 'style': {'color': '#f50'}},      # red
+              '2': {'label': '2', 'style': {'color': 'orange'}},    # orange
+              '5': {'label': '5', 'style': {'color': '#FFFF66'}},   # yellow
+              '10': {'label': '10', 'style': {'color': 'blue'}},    # blue
+              '20': {'label': '20'},
+              '40': {'label': '40'},
+              '70': {'label': '70', 'style': {'color': '#77b0b1'}}  # green
+        },
+        ),
+        html.Div(style= {'margin':'30px'})
+    ])
 
 def generate_map(df_updated):
+    colors = {'open':'green', 'closed':'red'}
     return html.Div([
-    html.H1('Bike Stands Map'),
-    html.Div(id='text-content'),
+    html.H2('Bike Stands Map'),
+    html.Div(id='text-content', style= {'color': 'blue', 'fontSize': 15}),
     dcc.Graph(id='map', figure={
         'data': [{
-            'lat': df_updated['lat'],
-            'lon': df_updated['long'],
+            'lat': df_updated['lat'].loc[df_updated.status == 'OPEN'],
+            'lon': df_updated['long'].loc[df_updated.status == 'OPEN'],
             'marker': {
-                'color': df_updated['status'],
-                'size': 8,
+                'color': colors['open'],
+                'size': df_updated['bike_stands'].loc[df_updated.status == 'OPEN'],
+                'opacity': 0.6,
+            },
+            'mode': 'markers',
+            'name': 'OPEN',
+            'text': df_updated['bike_stands'].loc[df_updated.status == 'OPEN'],
+            'customdata': df_updated['name'].loc[df_updated.status == 'OPEN'],
+            'type': 'scattermapbox'
+        },
+        {
+            'lat': df_updated['lat'].loc[df_updated.status == 'CLOSED'],
+            'lon': df_updated['long'].loc[df_updated.status == 'CLOSED'],
+            'marker': {
+                'color': colors['closed'],
+                'size': df_updated['bike_stands'].loc[df_updated.status == 'CLOSED'],
                 'opacity': 0.6
             },
-            'customdata': df_updated['name'],
+            'name': 'CLOSED',
+            'customdata': df_updated['name'].loc[df_updated.status == 'OPEN'],
             'type': 'scattermapbox'
         }],
         'layout': {
             'mapbox': {
-                'accesstoken': mapbox_public_token # 'pk.eyJ1IjoiY2hyaWRkeXAiLCJhIjoiY2ozcGI1MTZ3MDBpcTJ3cXR4b3owdDQwaCJ9.8jpMunbKjdq1anXwU5gxIw'
+                'accesstoken': mapbox_public_token
             },
             'hovermode': 'closest',
             'margin': {'l': 0, 'r': 0, 'b': 0, 't': 0}
@@ -214,9 +239,8 @@ app.layout = html.Div(children=[
         html.H2(id='counter_text', style={'fontWeight':'bold'}),
         html.Label('City Filter'),
         generate_dropdown(),
-        html.Label('# Available Bikes'),
-        generate_range_slider(),
         html.Div(id='slider-output-container'),
+        generate_range_slider(),
         generate_table(df),
         generate_bar_city(df_city),
         overall_figures(),
@@ -249,7 +273,7 @@ def update_datatable(selected_city, available_bikes_range):
     Output('slider-output-container', 'children'),
     [Input('range-slider', 'value')])
 def update_output(value):
-    return 'You have selected "{}"'.format(value)
+    return html.Label('# Available Bikes - You have selected between {} and {}'.format(value[0], value[1]))
 
 @app.callback(Output('live-update-text', 'children'),
               [Input('interval-component', 'n_intervals')])
@@ -276,7 +300,9 @@ def update_graph(n_intervals):
     [dash.dependencies.Input('map', 'hoverData')])
 def update_text(hoverData):
     s = df_updated[df_updated['name'] == hoverData['points'][0]['customdata']]
-    return html.H3(
+    # print(hoverData)
+    # print(df_updated['lat'].loc[df_updated.status == 'OPEN'])
+    return html.Div(
         'The contract {} has {} available bike stands, {} available bikes and is {}'.format(
             s.iloc[0]['name'],
             s.iloc[0]['available_bike_stands'],

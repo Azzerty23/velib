@@ -9,9 +9,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 df = pd.read_csv(
-    'https://raw.githubusercontent.com/'
-    'plotly/datasets/master/'
-    '1962_2006_walmart_store_openings.csv')
+    'https://raw.githubusercontent.com/plotly/datasets/master/1962_2006_walmart_store_openings.csv')
 
 app.layout = html.Div([
     html.H1('Walmart Store Openings'),
