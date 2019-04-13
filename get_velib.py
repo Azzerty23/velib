@@ -16,10 +16,13 @@ from kafka import KafkaProducer
 
 from flask import Flask
 
+with open("../conf.yaml", "r") as ymlfile:
+    cfg = yaml.load(ymlfile)
+    api_key_jcdecaux = cfg["jcdecaux"]
+    mapbox_token = cfg["mapbox"]
 
-api_key = 'ba4308bf6c56db5d7ead6d2a98390df83b6f9022'
-url = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + api_key
-map_token = 'sk.eyJ1IjoiYXp6ZXJ0eTIzIiwiYSI6ImNqdWJwY3I0aTBkYngzeW1oZzg5dXRocmsifQ.-Brp-m1HwRY5FnOulh2YUA'
+url = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + api_key_jcdecaux
+map_token = mapbox_token
 
 def refresher():
     return dcc.Interval(
