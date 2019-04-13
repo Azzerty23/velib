@@ -23,8 +23,8 @@ with open("conf.yaml", "r") as ymlfile:
     map_token = cfg["mapbox"]["map_token"]
     mapbox_public_token = cfg["mapbox"]["default_public_token"]
 
-url = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + jcdecaux_api_key
-# map_token = mapbox_token
+url_stations = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + jcdecaux_api_key
+url_contract = 'https://api.jcdecaux.com/vls/v1/stations?contract?apiKey=' + jcdecaux_api_key
 
 def refresher():
     return dcc.Interval(
@@ -33,21 +33,21 @@ def refresher():
         n_intervals=0
         )
 
-def get_data(url):
-       r = requests.get(url)
+def get_stations(url_stations):
+       r = requests.get(url_stations)
        # print('status code : ', r.status_code)
-       urlData = r.content.decode('utf-8')
-       rawData = pd.read_json(urlData)
-       # print(rawData.columns.values)
-       rawData.iloc[:,7] = rawData.iloc[:,7].map(lambda x : datetime.datetime.fromtimestamp(x/1000.0))
-       rawData = rawData.assign(lat= rawData.position.map(lambda x : x['lat']), long= rawData.position.map(lambda x : x['lng']))
-       # rawData = rawData.reindex(columns=['address', 'available_bike_stands', 'available_bikes', 'banking',
+       rawData = r.content.decode('utf-8')
+       data_stations = pd.read_json(rawData)
+       # print(data_stations.columns.values)
+       data_stations.iloc[:,7] = data_stations.iloc[:,7].map(lambda x : datetime.datetime.fromtimestamp(x/1000.0))
+       data_stations = data_stations.assign(lat= data_stations.position.map(lambda x : x['lat']), long= data_stations.position.map(lambda x : x['lng']))
+       # data_stations = data_stations.reindex(columns=['address', 'available_bike_stands', 'available_bikes', 'banking',
        # 'bike_stands', 'bonus', 'contract_name', 'last_update', 'name',
        # 'number', 'position', 'lat', 'long', 'status'])
-       rawData.rename(columns={'contract_name':'city'}, inplace=True)
-       rawData.city = rawData.city.map(lambda x : x.capitalize())
-       rawData = rawData[['city','name','available_bike_stands','available_bikes','bike_stands','status','last_update', 'lat', 'long']]
-       return rawData
+       data_stations.rename(columns={'contract_name':'city'}, inplace=True)
+       data_stations.city = data_stations.city.map(lambda x : x.capitalize())
+       data_stations = data_stations[['city','name','available_bike_stands','available_bikes','bike_stands','status','last_update', 'lat', 'long']]
+       return data_stations
 
 # df = pd.DataFrame(np.random.randint(0,100,size=(100, 4)), columns=list('ABCD'))
 
@@ -158,11 +158,11 @@ permet la montée en charge grâce au load balancing.
 
 '''
 
-refresh = 0
-global counter
+n_intervals = 0
+counter = 0
 counter_list = []
-
-df = get_data(url)
+df = get_stations(url_stations)
+df_updated = df
 
 city_options = []
 city_ordered = sorted(df['city'].unique())
@@ -226,10 +226,9 @@ app.layout = html.Div(children=[
 
 @app.callback(Output('counter_text', 'children'),
               [Input('interval-component', 'n_intervals')])
-def update_data(n):
-    df = get_data(url)
-    counter = df.available_bike_stands.sum()
-    counter_list.append(counter)
+def update_data(n_intervals):
+    global df_updated
+    df_updated = get_stations(url_stations)
     print('2 ', counter_list)
     return '# Worldwide active bikers: {}'.format(counter)
 
@@ -252,19 +251,19 @@ def update_output(value):
 
 @app.callback(Output('live-update-text', 'children'),
               [Input('interval-component', 'n_intervals')])
-def update_layout(refresh):
-    # counter = df.available_bike_stands.sum()
-    # counter_list.append(counter)
-    # time.sleep(2)
+def update_layout(n_intervals): 
     print('1 ', counter_list)
-    return 'Refresh #{}'.format(refresh)
+    return 'Refresh #{}'.format(n_intervals)
 
 @app.callback(Output('live-update-graph','figure'),
               [Input('interval-component', 'n_intervals')])
-def update_graph(n):
+def update_graph(n_intervals):
+    global counter
+    counter = df_updated.available_bike_stands.sum()
+    counter_list.append(counter) 
     fig = go.Figure(
         data = [go.Scatter(
-        x = list(range(len(counter_list))),
+        x = list(range(0, len(counter_list))),
         y = counter_list,
         mode='lines+markers'
         )])
