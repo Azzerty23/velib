@@ -3,6 +3,7 @@ import pandas as pd
 # import numpy as np
 import datetime
 import json
+import yaml
 import time
 
 import dash
@@ -16,13 +17,14 @@ from kafka import KafkaProducer
 
 from flask import Flask
 
-with open("../conf.yaml", "r") as ymlfile:
+with open("conf.yaml", "r") as ymlfile:
     cfg = yaml.load(ymlfile)
-    api_key_jcdecaux = cfg["jcdecaux"]
-    mapbox_token = cfg["mapbox"]
+    jcdecaux_api_key = cfg["jcdecaux"]["api_key"]
+    map_token = cfg["mapbox"]["map_token"]
+    mapbox_public_token = cfg["mapbox"]["default_public_token"]
 
-url = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + api_key_jcdecaux
-map_token = mapbox_token
+url = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + jcdecaux_api_key
+# map_token = mapbox_token
 
 def refresher():
     return dcc.Interval(
@@ -207,7 +209,7 @@ app.layout = html.Div(children=[
                 'layout': {
                     'mapbox': {
                         'accesstoken': (
-                            'pk.eyJ1IjoiY2hyaWRkeXAiLCJhIjoiY2ozcGI1MTZ3M' +
+                            mapbox_public_token +
                             map_token
                         )
                     },
