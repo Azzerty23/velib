@@ -1,8 +1,5 @@
 arrow==0.13.1
 dash==0.40.0
-dash-core-components==0.45.0
-dash-html-components==0.15.0
-dash-table==3.6.0
 Flask==1.0.2
 kafka-python==1.4.4
 pandas==0.23.4

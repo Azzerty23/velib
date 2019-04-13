@@ -138,6 +138,33 @@ def generate_range_slider():
 #     },        value=[min, max],
         )
 
+def generate_map(df_updated):
+    return html.Div([
+    html.H1('Bike Stands Map'),
+    html.Div(id='text-content'),
+    dcc.Graph(id='map', figure={
+        'data': [{
+            'lat': df_updated['lat'],
+            'lon': df_updated['long'],
+            'marker': {
+                'color': df_updated['status'],
+                'size': 8,
+                'opacity': 0.6
+            },
+            'customdata': df_updated['name'],
+            'type': 'scattermapbox'
+        }],
+        'layout': {
+            'mapbox': {
+                'accesstoken': mapbox_public_token # 'pk.eyJ1IjoiY2hyaWRkeXAiLCJhIjoiY2ozcGI1MTZ3MDBpcTJ3cXR4b3owdDQwaCJ9.8jpMunbKjdq1anXwU5gxIw'
+            },
+            'hovermode': 'closest',
+            'margin': {'l': 0, 'r': 0, 'b': 0, 't': 0}
+        }
+    })
+])
+
+
 markdown_text = '''
 ### About the project
 
@@ -194,32 +221,7 @@ app.layout = html.Div(children=[
         generate_bar_city(df_city),
         overall_figures(),
         dcc.Graph(id='live-update-graph',style={'width':1200}),
-        html.Div(
-        html.Pre(id='lasso', style={'overflowY': 'scroll', 'height': '100vh'}),
-        # className="three columns"
-    ),
-        html.Div(
-        className="nine columns",
-        children=dcc.Graph(
-            id='graph',
-            figure={
-                'data': [{
-                    'lat': df.lat, 'lon': df.long, 'type': 'scattermapbox'
-                }],
-                'layout': {
-                    'mapbox': {
-                        'accesstoken': (
-                            mapbox_public_token +
-                            map_token
-                        )
-                    },
-                    'margin': {
-                        'l': 0, 'r': 0, 'b': 0, 't': 0
-                    },
-                }
-            }
-        )
-    )
+        generate_map(df_updated),
 
 ])
 
@@ -229,7 +231,7 @@ app.layout = html.Div(children=[
 def update_data(n_intervals):
     global df_updated
     df_updated = get_stations(url_stations)
-    print('2 ', counter_list)
+    # print('2 ', counter_list)
     return '# Worldwide active bikers: {}'.format(counter)
 
 @app.callback(Output('datatable', 'data'),
@@ -252,7 +254,7 @@ def update_output(value):
 @app.callback(Output('live-update-text', 'children'),
               [Input('interval-component', 'n_intervals')])
 def update_layout(n_intervals): 
-    print('1 ', counter_list)
+    # print('1 ', counter_list)
     return 'Refresh #{}'.format(n_intervals)
 
 @app.callback(Output('live-update-graph','figure'),
@@ -270,11 +272,18 @@ def update_graph(n_intervals):
     return fig
 
 @app.callback(
-    Output('lasso', 'children'),
-    [Input('graph', 'selectedData')])
-def display_data(selectedData):
-    return json.dumps(selectedData, indent=2)
-
+    dash.dependencies.Output('text-content', 'children'),
+    [dash.dependencies.Input('map', 'hoverData')])
+def update_text(hoverData):
+    s = df_updated[df_updated['name'] == hoverData['points'][0]['customdata']]
+    return html.H3(
+        'The contract {} has {} available bike stands, {} available bikes and is {}'.format(
+            s.iloc[0]['name'],
+            s.iloc[0]['available_bike_stands'],
+            s.iloc[0]['available_bikes'],
+            s.iloc[0]['status']
+        )
+    )
 
 
 if __name__ == "__main__":
