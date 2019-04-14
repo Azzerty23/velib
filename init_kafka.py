@@ -17,30 +17,42 @@ else:
     os.system(get_kafka, unzip)
 
 # 1. Launch zookeeper
-# 2. Launch Kafka server
+# 2. Launch Kafka broker
 # 3. Creation Topic
 
-os.chdir('./{}'.format(kafka_folder))  # [dirname for dirname in os.listdir('.') if dirname.startswith("kafka")][0]
-print(os.getcwd())
+os.chdir('./{}'.format(kafka_folder))
 
 cmd1 ='./bin/zookeeper-server-start.sh ./config/zookeeper.properties'
 cmd2 = './bin/kafka-server-start.sh ./config/server.properties'
 cmd3 = './bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic velib-stations' # --consumer-property group.id=mygroup
 
-try:
-    os.system(cmd1)
-    print('zookeeper launched successfully')
-except:
-    print('error as zookeeper launching')
+def launching_kafka():
+    print('Launching zookeeper => option 1')
+    print('Launching kafka broker => option 2')
+    print('Create topic velib-stations => option 3')
+    option = str(input('Tape 1, 2 or 3 to select your choice or anything else to quit : '))
+    if option == '1':
+        try:
+            os.system(cmd1)
+            print('zookeeper launched successfully')
+        except:
+            print('error as zookeeper launching')
+    elif option == '2':
+        try:
+            os.system(cmd2)
+            print('broker kafka launched successfully')
+        except:
+            print('error as broker kafka launching')
+    elif option == '3':
+        try :
+            os.system(cmd3)
+            print('topic velib-stations created successfully')
+        except:
+            print('error as topic creating')
+    else:
+        print('Quitting...')
+        pass
 
-try:
-    os.system(cmd2)
-    print('server kafka launched successfully')
-except:
-    print('error as server kafka launching')
 
-try :
-    os.system(cmd3)
-    print('topic velib-stations created successfully')
-except:
-    print('error as topic creating')
+if __name__ == "__main__":
+    launching_kafka()

@@ -16,6 +16,7 @@ import plotly.graph_objs as go
 from flask import Flask
 
 from kafka import KafkaProducer
+from velib_monitor_stations import count_diff_stations
 
 
 ######## Ressources ########
@@ -49,13 +50,12 @@ def get_stations(url_stations):
            stations = json.loads(rawData) # json.loads(r.read().decode())
            for station in stations:
                producer.send("velib-stations", json.dumps(station).encode())
-               print("{} Produced {} station records".format(time.time(), len(stations)))
+            #    print("{} Produced {} station records".format(time.time(), len(stations)))
             #    time.sleep(10)
 
 
 
        data_stations = pd.read_json(rawData)
-       # print(data_stations.columns.values)
        data_stations.iloc[:,7] = data_stations.iloc[:,7].map(lambda x : datetime.datetime.fromtimestamp(x/1000.0))
        data_stations = data_stations.assign(lat= data_stations.position.map(lambda x : x['lat']), long= data_stations.position.map(lambda x : x['lng']))
        # data_stations = data_stations.reindex(columns=['address', 'available_bike_stands', 'available_bikes', 'banking',
@@ -65,8 +65,6 @@ def get_stations(url_stations):
        data_stations.city = data_stations.city.map(lambda x : x.capitalize())
        data_stations = data_stations[['city','name','available_bike_stands','available_bikes','bike_stands','status','last_update', 'lat', 'long']]
        return data_stations
-
-# df = pd.DataFrame(np.random.randint(0,100,size=(100, 4)), columns=list('ABCD'))
 
 def generate_table(df):
     df = df.iloc[:,:7]
@@ -87,6 +85,16 @@ def generate_table(df):
                "page_size": 10,
             },
             navigation="page",
+    style_as_list_view=False,
+    style_data_conditional=[
+        {
+            'if': {
+                'column_id': str(i),
+                'filter': 'available_bikes = num(0)',
+            },
+        'color': 'red',
+        } for i in df.columns
+        ],
 )
 
 def generate_bar_city(df):
@@ -264,15 +272,6 @@ except:
     producer = 0
     print('kafka not launched')
 
-# while True:
-#     response = urllib.request.urlopen(url)
-#     stations = json.loads(response.read().decode())
-#     for station in stations:
-#         producer.send("velib-stations", json.dumps(station).encode())
-#     print("{} Produced {} station records".format(time.time(), len(stations)))
-#     time.sleep(10)
-
-
 
 
 ######## Initialisation des variables ########
@@ -308,6 +307,8 @@ app.layout = html.Div(children=[
         html.H4('Projet de Big Data Architecture', style=dict(textAlign = 'center')),
         dcc.Markdown(markdown_text),
         html.H2(id='counter_text', style={'fontWeight':'bold'}),
+        # count_diff_stations(producer),
+        # html.Div(id='live-count-diff'),
         html.Label('City Filter'),
         generate_dropdown(),
         html.Div(id='slider-output-container'),
@@ -329,8 +330,16 @@ app.layout = html.Div(children=[
 def update_data(n_intervals):
     global df_updated
     df_updated = get_stations(url_stations)
+    total_bike_stands = df.bike_stands.sum()
     # print('2 ', counter_list)
-    return '# Worldwide active bikers: {}'.format(counter)
+    return '# Worldwide active bikers: {} / {}'.format(counter, total_bike_stands)
+
+
+# @app.callback(Output('live-count-diff', 'children'),
+#               [Input('interval-component', 'n_intervals')])
+# def update_count_diff(n_intervals):
+#     count_diff = count_diff_stations(producer)
+#     return 'count_diff: {}'.format(count_diff)
 
 @app.callback(Output('datatable', 'data'),
               [Input('dropdown', 'value'),
@@ -417,11 +426,14 @@ def update_graph(n_intervals):
         data = [go.Scatter(
         x = list(range(0, len(counter_list))),
         y = counter_list,
-        mode='lines+markers'
+        mode='lines+markers+text',
+        text= counter_list,
+        textposition='top center',
+        hoverinfo= 'x'
         )],
         layout=go.Layout(
         title='Worldwide Active Bikers Evolution Real-Time',
-        margin=go.layout.Margin(pad=50)
+        # margin=go.layout.Margin(l=0, pad=50)
         )
     )
     return fig
@@ -430,18 +442,18 @@ def update_graph(n_intervals):
     dash.dependencies.Output('text-content', 'children'),
     [dash.dependencies.Input('map', 'hoverData')])
 def update_text(hoverData):
-    if hoverData['points'][0]['customdata'] is not None: 
+    try:
         s = df_updated[df_updated['name'] == hoverData['points'][0]['customdata']]
-    # print(hoverData)
-    # print(df_updated['lat'].loc[df_updated.status == 'OPEN'])
-    return html.Div(
-        'The contract {} has {} available bike stands, {} available bikes and is {}'.format(
-            s.iloc[0]['name'],
-            s.iloc[0]['available_bike_stands'],
-            s.iloc[0]['available_bikes'],
-            s.iloc[0]['status']
+        return html.Div(
+            'The contract {} has {} available bike stands, {} available bikes and is {}'.format(
+                s.iloc[0]['name'],
+                s.iloc[0]['available_bike_stands'],
+                s.iloc[0]['available_bikes'],
+                s.iloc[0]['status']
+            )
         )
-    )
+    except:
+        pass
 
 
 if __name__ == "__main__":

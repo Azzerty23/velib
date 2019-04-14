@@ -1,4 +1,5 @@
 .DS_Store
 conf.yaml
 *.log
-kafka/logs/controller.log.*
+*.log.*
+__pycache__/

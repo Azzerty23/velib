@@ -1,3 +1,22 @@
-[2019-04-14T16:46:31.916-0100][gc,heap] Heap region size: 1M
-[2019-04-14T16:46:31.925-0100][gc     ] Using G1
-[2019-04-14T16:46:31.925-0100][gc,heap,coops] Heap address: 0x00000007e0000000, size: 512 MB, Compressed Oops mode: Zero based, Oop shift amount: 3
+[2019-04-14T20:29:31.925-0100][gc,heap] Heap region size: 1M
+[2019-04-14T20:29:31.934-0100][gc     ] Using G1
+[2019-04-14T20:29:31.934-0100][gc,heap,coops] Heap address: 0x00000007e0000000, size: 512 MB, Compressed Oops mode: Zero based, Oop shift amount: 3
+[2019-04-14T21:17:41.625-0100][gc,start     ] GC(0) Pause Young (Normal) (G1 Evacuation Pause)
+[2019-04-14T21:17:41.626-0100][gc,task      ] GC(0) Using 4 workers of 4 for evacuation
+[2019-04-14T21:17:41.688-0100][gc,mmu       ] GC(0) MMU target violated: 21,0ms (20,0ms/21,0ms)
+[2019-04-14T21:17:41.691-0100][gc,phases    ] GC(0)   Pre Evacuate Collection Set: 0,9ms
+[2019-04-14T21:17:41.691-0100][gc,phases    ] GC(0)   Evacuate Collection Set: 59,0ms
+[2019-04-14T21:17:41.691-0100][gc,phases    ] GC(0)   Post Evacuate Collection Set: 1,0ms
+[2019-04-14T21:17:41.691-0100][gc,phases    ] GC(0)   Other: 4,6ms
+[2019-04-14T21:17:41.691-0100][gc,heap      ] GC(0) Eden regions: 25->0(21)
+[2019-04-14T21:17:41.691-0100][gc,heap      ] GC(0) Survivor regions: 0->4(4)
+[2019-04-14T21:17:41.691-0100][gc,heap      ] GC(0) Old regions: 0->2
+[2019-04-14T21:17:41.691-0100][gc,heap      ] GC(0) Humongous regions: 1->1
+[2019-04-14T21:17:41.691-0100][gc,metaspace ] GC(0) Metaspace: 15231K->15231K(1062912K)
+[2019-04-14T21:17:41.692-0100][gc           ] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 26M->6M(512M) 66,002ms
+[2019-04-14T21:17:41.692-0100][gc,cpu       ] GC(0) User=0,05s Sys=0,09s Real=0,07s
+[2019-04-14T21:17:41.736-0100][gc,heap,exit ] Heap
+[2019-04-14T21:17:41.736-0100][gc,heap,exit ]  garbage-first heap   total 524288K, used 6729K [0x00000007e0000000, 0x0000000800000000)
+[2019-04-14T21:17:41.736-0100][gc,heap,exit ]   region size 1024K, 5 young (5120K), 4 survivors (4096K)
+[2019-04-14T21:17:41.736-0100][gc,heap,exit ]  Metaspace       used 15243K, capacity 15667K, committed 16128K, reserved 1062912K
+[2019-04-14T21:17:41.736-0100][gc,heap,exit ]   class space    used 1521K, capacity 1666K, committed 1792K, reserved 1048576K
