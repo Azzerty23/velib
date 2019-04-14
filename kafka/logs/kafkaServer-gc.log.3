@@ -1,0 +1,46 @@
+[2019-04-14T15:11:57.922-0100][gc,heap] Heap region size: 1M
+[2019-04-14T15:11:57.948-0100][gc     ] Using G1
+[2019-04-14T15:11:57.948-0100][gc,heap,coops] Heap address: 0x00000007c0000000, size: 1024 MB, Compressed Oops mode: Zero based, Oop shift amount: 3
+[2019-04-14T15:12:01.452-0100][gc,start     ] GC(0) Pause Young (Concurrent Start) (Metadata GC Threshold)
+[2019-04-14T15:12:01.453-0100][gc,task      ] GC(0) Using 4 workers of 4 for evacuation
+[2019-04-14T15:12:01.477-0100][gc,mmu       ] GC(0) MMU target violated: 21,0ms (20,0ms/21,0ms)
+[2019-04-14T15:12:01.477-0100][gc,phases    ] GC(0)   Pre Evacuate Collection Set: 0,0ms
+[2019-04-14T15:12:01.477-0100][gc,phases    ] GC(0)   Evacuate Collection Set: 21,3ms
+[2019-04-14T15:12:01.477-0100][gc,phases    ] GC(0)   Post Evacuate Collection Set: 0,8ms
+[2019-04-14T15:12:01.477-0100][gc,phases    ] GC(0)   Other: 3,2ms
+[2019-04-14T15:12:01.477-0100][gc,heap      ] GC(0) Eden regions: 43->0(44)
+[2019-04-14T15:12:01.477-0100][gc,heap      ] GC(0) Survivor regions: 0->7(7)
+[2019-04-14T15:12:01.477-0100][gc,heap      ] GC(0) Old regions: 0->0
+[2019-04-14T15:12:01.477-0100][gc,heap      ] GC(0) Humongous regions: 1->1
+[2019-04-14T15:12:01.478-0100][gc,metaspace ] GC(0) Metaspace: 20553K->20553K(1069056K)
+[2019-04-14T15:12:01.478-0100][gc           ] GC(0) Pause Young (Concurrent Start) (Metadata GC Threshold) 43M->7M(1024M) 25,500ms
+[2019-04-14T15:12:01.478-0100][gc,cpu       ] GC(0) User=0,03s Sys=0,02s Real=0,02s
+[2019-04-14T15:12:01.478-0100][gc           ] GC(1) Concurrent Cycle
+[2019-04-14T15:12:01.478-0100][gc,marking   ] GC(1) Concurrent Clear Claimed Marks
+[2019-04-14T15:12:01.478-0100][gc,marking   ] GC(1) Concurrent Clear Claimed Marks 0,050ms
+[2019-04-14T15:12:01.478-0100][gc,marking   ] GC(1) Concurrent Scan Root Regions
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Scan Root Regions 7,791ms
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Mark (3,585s)
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Mark From Roots
+[2019-04-14T15:12:01.486-0100][gc,task      ] GC(1) Using 1 workers of 1 for marking
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Mark From Roots 0,350ms
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Preclean
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Preclean 0,060ms
+[2019-04-14T15:12:01.486-0100][gc,marking   ] GC(1) Concurrent Mark (3,585s, 3,585s) 0,577ms
+[2019-04-14T15:12:01.486-0100][gc,start     ] GC(1) Pause Remark
+[2019-04-14T15:12:01.491-0100][gc,stringtable] GC(1) Cleaned string and symbol table, strings: 7943 processed, 0 removed, symbols: 64902 processed, 38 removed
+[2019-04-14T15:12:01.492-0100][gc            ] GC(1) Pause Remark 7M->7M(1024M) 5,441ms
+[2019-04-14T15:12:01.492-0100][gc,cpu        ] GC(1) User=0,01s Sys=0,00s Real=0,01s
+[2019-04-14T15:12:01.492-0100][gc,marking    ] GC(1) Concurrent Rebuild Remembered Sets
+[2019-04-14T15:12:01.495-0100][gc,marking    ] GC(1) Concurrent Rebuild Remembered Sets 2,946ms
+[2019-04-14T15:12:01.495-0100][gc,start      ] GC(1) Pause Cleanup
+[2019-04-14T15:12:01.497-0100][gc            ] GC(1) Pause Cleanup 8M->8M(1024M) 1,376ms
+[2019-04-14T15:12:01.497-0100][gc,cpu        ] GC(1) User=0,00s Sys=0,00s Real=0,00s
+[2019-04-14T15:12:01.497-0100][gc,marking    ] GC(1) Concurrent Cleanup for Next Mark
+[2019-04-14T15:12:01.515-0100][gc,marking    ] GC(1) Concurrent Cleanup for Next Mark 17,970ms
+[2019-04-14T15:12:01.515-0100][gc            ] GC(1) Concurrent Cycle 37,252ms
+[2019-04-14T15:12:04.932-0100][gc,heap,exit  ] Heap
+[2019-04-14T15:12:04.932-0100][gc,heap,exit  ]  garbage-first heap   total 1048576K, used 25664K [0x00000007c0000000, 0x0000000800000000)
+[2019-04-14T15:12:04.932-0100][gc,heap,exit  ]   region size 1024K, 26 young (26624K), 7 survivors (7168K)
+[2019-04-14T15:12:04.932-0100][gc,heap,exit  ]  Metaspace       used 25082K, capacity 25445K, committed 26032K, reserved 1073152K
+[2019-04-14T15:12:04.932-0100][gc,heap,exit  ]   class space    used 3071K, capacity 3219K, committed 3328K, reserved 1048576K

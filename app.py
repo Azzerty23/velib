@@ -13,9 +13,9 @@ from dash.dependencies import Input, Output
 import dash_table as dt
 import plotly.graph_objs as go
 
-from kafka import KafkaProducer
-
 from flask import Flask
+
+from kafka import KafkaProducer
 
 
 ######## Ressources ########
@@ -44,6 +44,16 @@ def get_stations(url_stations):
        r = requests.get(url_stations)
        # print('status code : ', r.status_code)
        rawData = r.content.decode('utf-8')
+
+       if producer != 0:
+           stations = json.loads(rawData) # json.loads(r.read().decode())
+           for station in stations:
+               producer.send("velib-stations", json.dumps(station).encode())
+               print("{} Produced {} station records".format(time.time(), len(stations)))
+            #    time.sleep(10)
+
+
+
        data_stations = pd.read_json(rawData)
        # print(data_stations.columns.values)
        data_stations.iloc[:,7] = data_stations.iloc[:,7].map(lambda x : datetime.datetime.fromtimestamp(x/1000.0))
@@ -157,6 +167,7 @@ def generate_range_slider():
 
 def generate_radio_items_order_city():
     return dcc.RadioItems(
+            id='radioItems',
             options=[
                 {'label': 'A-Z Order', 'value': 'AZ'},
                 {'label': 'Filter Order', 'value': 'filter'},
@@ -165,6 +176,12 @@ def generate_radio_items_order_city():
             labelStyle={'display': 'inline-block', 'marginRight': '10px'},
             style= {'textAlign': 'center'}) # 'wordSpacing': '10px'
     # ])
+
+def generate_alert():
+    return dcc.ConfirmDialog(
+        id='confirm',
+        message='This option is not deployed yet'
+    )
 
 def generate_map(df_updated):
     colors = {'open':'#2E8B57', 'closed':'#B22222'} # green / red
@@ -203,12 +220,16 @@ def generate_map(df_updated):
                 'accesstoken': mapbox_public_token,
                 'bearing': 0,
                 'center': {'lat': 45, 'lon': 3},
-                'pitch': 50, 'zoom': 3,
+                'pitch': 50, 'zoom': 3, 
+                # 'minzoom':1,
+                # 'maxzoom':1,
                 # "style": 'mapbox://styles/mapbox/light-v9' # v9
             },
             'hovermode': 'closest',
             'margin': {'l': 0, 'r': 0, 'b': 0, 't': 30},
             'height': 700,
+            # 'tickformatstops': {'dtickrange': [0,5]},
+            'dtickrange': [0,5]
         }
     })
 ])
@@ -233,6 +254,26 @@ NB: Pour limiter les appels à l'API, nous avons décidé d'actualiser les donn�
 permet la montée en charge grâce au load balancing.
 
 '''
+
+
+######## Kafka Producer ########
+
+try:
+    producer = KafkaProducer(bootstrap_servers="localhost:9092")
+except:
+    producer = 0
+    print('kafka not launched')
+
+# while True:
+#     response = urllib.request.urlopen(url)
+#     stations = json.loads(response.read().decode())
+#     for station in stations:
+#         producer.send("velib-stations", json.dumps(station).encode())
+#     print("{} Produced {} station records".format(time.time(), len(stations)))
+#     time.sleep(10)
+
+
+
 
 ######## Initialisation des variables ########
 
@@ -261,6 +302,7 @@ app = dash.Dash(__name__, server=server, external_stylesheets=external_styleshee
 
 app.layout = html.Div(children=[
         refresher(),
+        generate_alert(),
         html.P(id='live-update-text'),
         html.H1('JCDecaux Worldwide Bike Rantal Dashboard', style=dict(textAlign = 'center')),
         html.H4('Projet de Big Data Architecture', style=dict(textAlign = 'center')),
@@ -357,6 +399,13 @@ def update_bar_chart(selected_city, available_bikes_range):
         barmode='group',
         )
     }
+
+@app.callback(Output('confirm', 'displayed'),
+              [Input('radioItems', 'value')])
+def display_confirm(value):
+    if value == 'filter':
+        return True
+    return False
 
 @app.callback(Output('live-update-graph','figure'),
               [Input('interval-component', 'n_intervals')])
