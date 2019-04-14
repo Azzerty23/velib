@@ -86,6 +86,12 @@ def generate_bar_city(df):
     data=[
     go.Bar(
         x=df.city,
+        y=df.status,
+        name='# Distinct Access Point ',
+        marker=go.bar.Marker()
+    ),
+    go.Bar(
+        x=df.city,
         y=df.available_bikes,
         name='# Available Bikes',
         marker=go.bar.Marker()
@@ -94,12 +100,6 @@ def generate_bar_city(df):
         x=df.city,
         y=df.available_bike_stands,
         name='# Available Bike Stands',
-        marker=go.bar.Marker()
-    ),
-    go.Bar(
-        x=df.city,
-        y=df.status,
-        name='# Distinct Access Point ',
         marker=go.bar.Marker()
     ),
     go.Bar(
@@ -113,7 +113,6 @@ def generate_bar_city(df):
     title='View by City',
     showlegend=True,
     barmode='group',
-#     xaxis = dict(tickvals=df.index)
     )
 ))
 
@@ -168,10 +167,9 @@ def generate_radio_items_order_city():
     # ])
 
 def generate_map(df_updated):
-    colors = {'open':'green', 'closed':'red'}
+    colors = {'open':'#2E8B57', 'closed':'#B22222'} # green / red
     return html.Div([
-    html.H2('Bike Stands Map'),
-    html.Div(id='text-content', style= {'color': 'blue', 'fontSize': 15}),
+    html.Div('Contract infos', id='text-content', style= {'color': '#1E90FF', 'fontSize': 15}),
     dcc.Graph(id='map', figure={
         'data': [{
             'lat': df_updated['lat'].loc[df_updated.status == 'OPEN'],
@@ -200,11 +198,17 @@ def generate_map(df_updated):
             'type': 'scattermapbox'
         }],
         'layout': {
+            'title': 'Bike Stands Map',
             'mapbox': {
-                'accesstoken': mapbox_public_token
+                'accesstoken': mapbox_public_token,
+                'bearing': 0,
+                'center': {'lat': 45, 'lon': 3},
+                'pitch': 50, 'zoom': 3,
+                # "style": 'mapbox://styles/mapbox/light-v9' # v9
             },
             'hovermode': 'closest',
-            'margin': {'l': 0, 'r': 0, 'b': 0, 't': 0}
+            'margin': {'l': 0, 'r': 0, 'b': 0, 't': 30},
+            'height': 700,
         }
     })
 ])
@@ -270,7 +274,7 @@ app.layout = html.Div(children=[
         generate_bar_city(df_city),
         generate_radio_items_order_city(),
         overall_figures(),
-        dcc.Graph(id='live-update-graph',style={'width':1200}),
+        dcc.Graph(id='live-update-graph'),
         generate_map(df_updated),
 
 ])
@@ -321,30 +325,31 @@ def update_bar_chart(selected_city, available_bikes_range):
         df_updated = df_city
 
     return {
-        'data': [go.Bar(
-            x=df_updated.city,
-            y=df_updated.available_bikes,
-            name= '# Available Bikes',
-            marker= go.bar.Marker()
-        ),
-        go.Bar(
-            x=df_updated.city,
-            y=df_updated.available_bike_stands,
-            name='# Available Bike Stands',
-            marker=go.bar.Marker()
-        ),
-        go.Bar(
-            x=df_updated.city,
-            y=df_updated.status,
-            name='# Distinct Access Point ',
-            marker=go.bar.Marker()
-        ),
-        go.Bar(
-            x=df_updated.city,
-            y=df_updated.bike_stands,
-            name='Total Bike Stands',
-            marker=go.bar.Marker()
-        ),
+        'data': [
+            go.Bar(
+                x=df_updated.city,
+                y=df_updated.status,
+                name='# Distinct Access Point ',
+                marker=go.bar.Marker()
+            ),
+            go.Bar(
+                x=df_updated.city,
+                y=df_updated.available_bikes,
+                name= '# Available Bikes',
+                marker= go.bar.Marker()
+            ),
+            go.Bar(
+                x=df_updated.city,
+                y=df_updated.available_bike_stands,
+                name='# Available Bike Stands',
+                marker=go.bar.Marker()
+            ),
+            go.Bar(
+                x=df_updated.city,
+                y=df_updated.bike_stands,
+                name='Total Bike Stands',
+                marker=go.bar.Marker()
+            ),
         ],
         'layout': go.Layout(
         title='View by City',
@@ -364,7 +369,12 @@ def update_graph(n_intervals):
         x = list(range(0, len(counter_list))),
         y = counter_list,
         mode='lines+markers'
-        )])
+        )],
+        layout=go.Layout(
+        title='Worldwide Active Bikers Evolution Real-Time',
+        margin=go.layout.Margin(pad=50)
+        )
+    )
     return fig
 
 @app.callback(
