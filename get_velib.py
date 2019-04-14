@@ -17,6 +17,9 @@ from kafka import KafkaProducer
 
 from flask import Flask
 
+
+######## Ressources ########
+
 with open("conf.yaml", "r") as ymlfile:
     cfg = yaml.load(ymlfile)
     jcdecaux_api_key = cfg["jcdecaux"]["api_key"]
@@ -25,6 +28,10 @@ with open("conf.yaml", "r") as ymlfile:
 
 url_stations = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + jcdecaux_api_key
 url_contract = 'https://api.jcdecaux.com/vls/v1/stations?contract?apiKey=' + jcdecaux_api_key
+
+
+
+######## Functions ########
 
 def refresher():
     return dcc.Interval(
@@ -51,11 +58,12 @@ def get_stations(url_stations):
 
 # df = pd.DataFrame(np.random.randint(0,100,size=(100, 4)), columns=list('ABCD'))
 
-def generate_table(dataframe):
+def generate_table(df):
+    df = df.iloc[:,:7]
     return dt.DataTable(
     id='datatable',
-    columns=[{"name": i, "id": i} for i in dataframe.columns],
-    data=dataframe.to_dict("rows"),
+    columns=[{"name": i, "id": i} for i in df.columns],
+    data=df.to_dict("rows"),
     filtering=False,
     sorting=True,
     sorting_type="multi",
@@ -73,28 +81,29 @@ def generate_table(dataframe):
 
 def generate_bar_city(df):
     return dcc.Graph(
+    id='bar_city',
     figure=go.Figure(
     data=[
     go.Bar(
-        x=df.index,
+        x=df.city,
         y=df.available_bikes,
         name='# Available Bikes',
         marker=go.bar.Marker()
     ),
     go.Bar(
-        x=df.index,
+        x=df.city,
         y=df.available_bike_stands,
         name='# Available Bike Stands',
         marker=go.bar.Marker()
     ),
     go.Bar(
-        x=df.index,
+        x=df.city,
         y=df.status,
         name='# Distinct Access Point ',
         marker=go.bar.Marker()
     ),
     go.Bar(
-        x=df.index,
+        x=df.city,
         y=df.bike_stands,
         name='Total Bike Stands',
         marker=go.bar.Marker()
@@ -221,6 +230,8 @@ permet la montée en charge grâce au load balancing.
 
 '''
 
+######## Initialisation des variables ########
+
 n_intervals = 0
 counter = 0
 counter_list = []
@@ -232,8 +243,11 @@ city_ordered = sorted(df['city'].unique())
 for city in city_ordered:
     city_options.append({'label':str(city), 'value':str(city)})
 
-df_city = df[['city', 'available_bike_stands', 'available_bikes', 'bike_stands']]
-df_city = df.groupby('city').agg({'available_bike_stands':'sum','available_bikes':'sum','bike_stands':'sum','status':'count'})
+# df_city = df[['city', 'available_bike_stands', 'available_bikes', 'bike_stands']]
+df_city = df.groupby('city', as_index=False).agg({'available_bike_stands':'sum','available_bikes':'sum','bike_stands':'sum','status':'count'})
+
+
+######## App core ########
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -261,6 +275,8 @@ app.layout = html.Div(children=[
 
 ])
 
+
+######## Callbacks ########
 
 @app.callback(Output('counter_text', 'children'),
               [Input('interval-component', 'n_intervals')])
@@ -292,6 +308,50 @@ def update_output(value):
 def update_layout(n_intervals): 
     # print('1 ', counter_list)
     return 'Refresh #{}'.format(n_intervals)
+
+@app.callback(Output('bar_city', 'figure'),
+              [Input('dropdown', 'value'),
+              Input('range-slider', 'value')
+              ])
+def update_bar_chart(selected_city, available_bikes_range):
+    if len(selected_city) != 0:
+        df_updated = df[(df['city'].isin(selected_city)) & (df['available_bikes'] >= available_bikes_range[0]) & (df['available_bikes'] <= available_bikes_range[1]) ]
+        df_updated = df_updated.groupby('city', as_index=False).agg({'available_bike_stands':'sum','available_bikes':'sum','bike_stands':'sum','status':'count'})
+    else:
+        df_updated = df_city
+
+    return {
+        'data': [go.Bar(
+            x=df_updated.city,
+            y=df_updated.available_bikes,
+            name= '# Available Bikes',
+            marker= go.bar.Marker()
+        ),
+        go.Bar(
+            x=df_updated.city,
+            y=df_updated.available_bike_stands,
+            name='# Available Bike Stands',
+            marker=go.bar.Marker()
+        ),
+        go.Bar(
+            x=df_updated.city,
+            y=df_updated.status,
+            name='# Distinct Access Point ',
+            marker=go.bar.Marker()
+        ),
+        go.Bar(
+            x=df_updated.city,
+            y=df_updated.bike_stands,
+            name='Total Bike Stands',
+            marker=go.bar.Marker()
+        ),
+        ],
+        'layout': go.Layout(
+        title='View by City',
+        showlegend=True,
+        barmode='group',
+        )
+    }
 
 @app.callback(Output('live-update-graph','figure'),
               [Input('interval-component', 'n_intervals')])
