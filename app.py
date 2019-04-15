@@ -82,7 +82,7 @@ def generate_table(df):
         pagination_settings={
                "displayed_pages": 1,
                "current_page": 0,
-               "page_size": 10,
+               "page_size": 20,
             },
             navigation="page",
     style_as_list_view=False,
@@ -95,7 +95,8 @@ def generate_table(df):
         'color': 'red',
         } for i in df.columns
     ],
-    style={'height': 300, 'overflowY': 'scroll'},
+    style_table={'height': 400, 'overflowY': 'scroll'},
+    # n_fixed_rows= 1,
 )
 
 def generate_bar_city(df):
@@ -207,7 +208,7 @@ def generate_map(df_updated):
             },
             'mode': 'markers',
             'name': 'OPEN',
-            'text': df_updated['bike_stands'].loc[df_updated.status == 'OPEN'],
+            'text': df_updated['name'].loc[df_updated.status == 'OPEN'],
             'customdata': df_updated['name'].loc[df_updated.status == 'OPEN'],
             'type': 'scattermapbox'
         },
@@ -220,7 +221,8 @@ def generate_map(df_updated):
                 'opacity': 0.6
             },
             'name': 'CLOSED',
-            'customdata': df_updated['name'].loc[df_updated.status == 'OPEN'],
+            'text': df_updated['name'].loc[df_updated.status == 'CLOSED'],
+            'customdata': df_updated['name'].loc[df_updated.status == 'CLOSED'],
             'type': 'scattermapbox'
         }],
         'layout': {
@@ -238,7 +240,7 @@ def generate_map(df_updated):
             'margin': {'l': 0, 'r': 0, 'b': 0, 't': 30},
             'height': 700,
             # 'tickformatstops': {'dtickrange': [0,5]},
-            'dtickrange': [0,5]
+            # 'dtickrange': [0,1]
         }
     })
 ])
