@@ -94,7 +94,8 @@ def generate_table(df):
             },
         'color': 'red',
         } for i in df.columns
-        ],
+    ],
+    style={'height': 300, 'overflowY': 'scroll'},
 )
 
 def generate_bar_city(df):
