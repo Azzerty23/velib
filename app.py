@@ -29,7 +29,8 @@ with open("conf.yaml", "r") as ymlfile:
 
 url_stations = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + jcdecaux_api_key
 url_contract = 'https://api.jcdecaux.com/vls/v1/stations?contract?apiKey=' + jcdecaux_api_key
-
+url_kafka_consumer = 'localhost:9092'
+url_kafka_consumer2 = 'localhost:9093'
 
 
 ######## Functions ########
@@ -37,7 +38,7 @@ url_contract = 'https://api.jcdecaux.com/vls/v1/stations?contract?apiKey=' + jcd
 def refresher():
     return dcc.Interval(
         id='interval-component',
-        interval=10000, # 10.000 milliseconds = 10 seconds
+        interval=2000, # 2.000 milliseconds = 2 seconds
         n_intervals=0
         )
 
@@ -52,8 +53,18 @@ def get_stations(url_stations):
                producer.send("velib-stations", json.dumps(station).encode())
             #    print("{} Produced {} station records".format(time.time(), len(stations)))
             #    time.sleep(10)
+           
+        #    r1 = requests.get(url_kafka_consumer)
+        #    r1 = r1.content.decode('utf-8')
+        #    data_consumer1 = pd.read_json(r1)
 
+        #    r2 = requests.get(url_kafka_consumer2)
+        #    r2 = r2.content.decode('utf-8')
+        #    data_consumer2 = pd.read_json(r2)
+        #    data_consumer = data_consumer1.append(data_consumer2)
 
+        #    print(data_consumer1)
+        #    return data_consumer1
 
        data_stations = pd.read_json(rawData)
        data_stations.iloc[:,7] = data_stations.iloc[:,7].map(lambda x : datetime.datetime.fromtimestamp(x/1000.0))
