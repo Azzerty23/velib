@@ -314,9 +314,10 @@ df_city = df.groupby('city', as_index=False).agg({'available_bike_stands':'sum',
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-server = Flask(__name__)
-app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
+app = dash.Dash(external_stylesheets=external_stylesheets)
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
+server = app.server
+
 
 app.layout = html.Div(children=[
         refresher(),

@@ -1,5 +1,8 @@
+python370
 .DS_Store
 conf.yaml
 *.log
 *.log.*
 __pycache__/
+*.pyc
+.env
