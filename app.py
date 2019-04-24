@@ -327,6 +327,7 @@ app.layout = html.Div(children=[
         html.H4('Projet de Big Data Architecture', style=dict(textAlign = 'center')),
         dcc.Markdown(markdown_text),
         html.H2(id='counter_text', style={'fontWeight':'bold'}),
+        dcc.Graph(id='live-update-graph'),
         # count_diff_stations(producer),
         # html.Div(id='live-count-diff'),
         html.Label('City Filter'),
@@ -337,7 +338,6 @@ app.layout = html.Div(children=[
         generate_bar_city(df_city),
         generate_radio_items_order_city(),
         overall_figures(),
-        dcc.Graph(id='live-update-graph'),
         generate_map(df_updated),
 
 ])
@@ -446,10 +446,10 @@ def update_graph(n_intervals):
         data = [go.Scatter(
         x = list(range(0, len(counter_list))),
         y = counter_list,
-        mode='lines+markers+text',
+        mode='lines+markers',
         text= counter_list,
         textposition='top center',
-        hoverinfo= 'x'
+        hoverinfo= 'y'
         )],
         layout=go.Layout(
         title='Worldwide Active Bikers Evolution Real-Time',
