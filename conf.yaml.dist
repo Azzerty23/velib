@@ -1,3 +1,6 @@
+dash:
+    username: to_replace
+    password: to_replace
 jcdecaux:
     api_key: to_replace
 mapbox:

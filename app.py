@@ -12,6 +12,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_table as dt
 import plotly.graph_objs as go
+import dash_auth
 
 from flask import Flask
 
@@ -23,9 +24,13 @@ from velib_monitor_stations import count_diff_stations
 
 with open("conf.yaml", "r") as ymlfile:
     cfg = yaml.load(ymlfile)
+    dash_username = cfg['dash']['username']
+    dash_password = cfg['dash']['password']
     jcdecaux_api_key = cfg["jcdecaux"]["api_key"]
     map_token = cfg["mapbox"]["map_token"]
     mapbox_public_token = cfg["mapbox"]["default_public_token"]
+
+USERNAME_PASSWORD_PAIRS = [[dash_username, dash_password]]
 
 url_stations = 'https://api.jcdecaux.com/vls/v1/stations?apiKey=' + jcdecaux_api_key
 url_contract = 'https://api.jcdecaux.com/vls/v1/stations?contract?apiKey=' + jcdecaux_api_key
@@ -311,7 +316,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
-
+auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 
 app.layout = html.Div(children=[
         refresher(),
