@@ -111,7 +111,7 @@ def generate_table(df):
         'color': 'red',
         } for i in df.columns
     ],
-    style_table={'height': 400, 'overflowY': 'scroll'},
+    # style_table={'height': 400, 'overflowY': 'scroll'},
     # n_fixed_rows= 1,
 )
 
@@ -210,22 +210,79 @@ def generate_alert():
     )
 
 def generate_map(df_updated):
-    colors = {'open':'#2E8B57', 'closed':'#B22222'} # green / red
+    colors = {'no_bike':'red', 'two_bikes':'orange', 'five_bikes':'yellow', 'ten_bikes':'blue', 'more_bikes':'green', 'closed': 'black'} # green / red
+    # colors = {'open':'#2E8B57', 'closed':'#B22222'} # green / red
     return html.Div([
     html.Div('Contract infos', id='text-content', style= {'color': '#1E90FF', 'fontSize': 15}),
     dcc.Graph(id='map', figure={
         'data': [{
-            'lat': df_updated['lat'].loc[df_updated.status == 'OPEN'],
-            'lon': df_updated['long'].loc[df_updated.status == 'OPEN'],
+            'lat': df_updated['lat'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
+            'lon': df_updated['long'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
             'marker': {
-                'color': colors['open'],
-                'size': df_updated['bike_stands'].loc[df_updated.status == 'OPEN'],
+                'color': colors['no_bike'],
+                'size': df_updated['bike_stands'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
                 'opacity': 0.6,
             },
             'mode': 'markers',
-            'name': 'OPEN',
-            'text': df_updated['name'].loc[df_updated.status == 'OPEN'],
-            'customdata': df_updated['name'].loc[df_updated.status == 'OPEN'],
+            'name': 'NO_BIKE',
+            'text': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
+            'customdata': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
+            'type': 'scattermapbox'
+        },
+        {
+            'lat': df_updated['lat'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 0) & (df_updated.available_bikes <= 2)],
+            'lon': df_updated['long'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 0) & (df_updated.available_bikes <= 2)],
+            'marker': {
+                'color': colors['two_bikes'],
+                'size': df_updated['bike_stands'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 0) & (df_updated.available_bikes <= 2)],
+                'opacity': 0.6,
+            },
+            'mode': 'markers',
+            'name': '<= 2 available bikes',
+            'text': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 0) & (df_updated.available_bikes <= 2)],
+            'customdata': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 0) & (df_updated.available_bikes <= 2)],
+            'type': 'scattermapbox'
+        },
+        {
+            'lat': df_updated['lat'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 2) & (df_updated.available_bikes <= 5)],
+            'lon': df_updated['long'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 2) & (df_updated.available_bikes <= 5)],
+            'marker': {
+                'color': colors['five_bikes'],
+                'size': df_updated['bike_stands'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 2) & (df_updated.available_bikes <= 5)],
+                'opacity': 0.6,
+            },
+            'mode': 'markers',
+            'name': '<= 5 available bikes',
+            'text': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 2) & (df_updated.available_bikes <= 5)],
+            'customdata': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 2) & (df_updated.available_bikes <= 5)],
+            'type': 'scattermapbox'
+        },
+        {
+            'lat': df_updated['lat'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 5) & (df_updated.available_bikes <= 10)],
+            'lon': df_updated['long'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 5) & (df_updated.available_bikes <= 10)],
+            'marker': {
+                'color': colors['ten_bikes'],
+                'size': df_updated['bike_stands'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 5) & (df_updated.available_bikes <= 10)],
+                'opacity': 0.6,
+            },
+            'mode': 'markers',
+            'name': '<= 10 available bikes',
+            'text': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 5) & (df_updated.available_bikes <= 10)],
+            'customdata': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 5) & (df_updated.available_bikes <= 10)],
+            'type': 'scattermapbox'
+        },
+           {
+            'lat': df_updated['lat'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 10)],
+            'lon': df_updated['long'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 10)],
+            'marker': {
+                'color': colors['more_bikes'],
+                'size': df_updated['bike_stands'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 10)],
+                'opacity': 0.6,
+            },
+            'mode': 'markers',
+            'name': '> 10 available bikes',
+            'text': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 10)],
+            'customdata': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes > 10)],
             'type': 'scattermapbox'
         },
         {
@@ -264,11 +321,8 @@ def generate_map(df_updated):
 
 markdown_text = '''
 ### About the project
-
 ##### *Dockerized Dash app on ECS with Kafka distributed treatment*
-
 Données des systèmes de location de vélos en libre-service dans le monde développés par JCDecaux - récupérées via leur API.
-
 L'objectif était la réalisation d'une architecture Big Data. \
 Nous souhaitions réaliser un dashboard exploitant des données en temps réel dans une architecture distribuée. \
 Nous nous sommes rapidement orientés vers une architecture dite en lambda, gérant les flux de données massives à la fois en bash et 
@@ -276,10 +330,8 @@ en streaming. Nous souhaitions faire tourner l'application sur un cluster EC2 ma
 Nous avons donc décidé de développer l'outil en local et de simuler une architecture distribuée grâce aux containers Docker. \
 Les flux de données sont gérés par Kafka qui redistribuent les données sur 2 noeuds.
 Enfin, nous avons pu déployer l'application sur ECS (Elastic Container Service) d'AWS.
-
 NB: Pour limiter les appels à l'API, nous avons décidé d'actualiser les données toutes les 10 secondes mais techniquement, ECS 
 permet la montée en charge grâce au load balancing.
-
 '''
 
 
