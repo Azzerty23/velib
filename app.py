@@ -27,7 +27,7 @@ with open("conf.yaml", "r") as ymlfile:
     dash_username = cfg['dash']['username']
     dash_password = cfg['dash']['password']
     jcdecaux_api_key = cfg["jcdecaux"]["api_key"]
-    map_token = cfg["mapbox"]["map_token"]
+    map_token = cfg["mapbox"]["secret_token"]
     mapbox_public_token = cfg["mapbox"]["default_public_token"]
 
 USERNAME_PASSWORD_PAIRS = [[dash_username, dash_password]]

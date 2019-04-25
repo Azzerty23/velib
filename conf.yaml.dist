@@ -4,4 +4,5 @@ dash:
 jcdecaux:
     api_key: to_replace
 mapbox:
-    token: to_replace
+    secret_token: to_replace
+    default_public_token: to_replace
