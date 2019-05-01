@@ -192,7 +192,8 @@ def generate_range_slider():
     ])
 
 def generate_radio_items_order_city():
-    return dcc.RadioItems(
+    return html.Div([
+    dcc.RadioItems(
             id='radioItems',
             options=[
                 {'label': 'A-Z Order', 'value': 'AZ'},
@@ -200,8 +201,9 @@ def generate_radio_items_order_city():
             ],
             value='AZ',
             labelStyle={'display': 'inline-block', 'marginRight': '10px'},
-            style= {'textAlign': 'center'}) # 'wordSpacing': '10px'
-    # ])
+            style= {'textAlign': 'center'}), # 'wordSpacing': '10px'
+    html.Div(style= {'margin-bottom':'30px'})
+    ])
 
 def generate_alert():
     return dcc.ConfirmDialog(
@@ -224,7 +226,7 @@ def generate_map(df_updated):
                 'opacity': 0.6,
             },
             'mode': 'markers',
-            'name': 'NO_BIKE',
+            'name': 'NO AVAILABLE BIKE',
             'text': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
             'customdata': df_updated['name'].loc[(df_updated.status == 'OPEN') & (df_updated.available_bikes == 0)],
             'type': 'scattermapbox'
@@ -320,18 +322,11 @@ def generate_map(df_updated):
 
 
 markdown_text = '''
-### About the project
-##### *Dockerized Dash app on ECS with Kafka distributed treatment*
-Données des systèmes de location de vélos en libre-service dans le monde développés par JCDecaux - récupérées via leur API.
-L'objectif était la réalisation d'une architecture Big Data. \
-Nous souhaitions réaliser un dashboard exploitant des données en temps réel dans une architecture distribuée. \
-Nous nous sommes rapidement orientés vers une architecture dite en lambda, gérant les flux de données massives à la fois en bash et 
-en streaming. Nous souhaitions faire tourner l'application sur un cluster EC2 mais nous ne maîtrisions pas les coûts et la facture nous en a dissuadé.
-Nous avons donc décidé de développer l'outil en local et de simuler une architecture distribuée grâce aux containers Docker. \
-Les flux de données sont gérés par Kafka qui redistribuent les données sur 2 noeuds.
-Enfin, nous avons pu déployer l'application sur ECS (Elastic Container Service) d'AWS.
-NB: Pour limiter les appels à l'API, nous avons décidé d'actualiser les données toutes les 10 secondes mais techniquement, ECS 
-permet la montée en charge grâce au load balancing.
+### À propos du projet
+##### *Application web de visualisation de données en temps-réel*
+Les données proviennent des systèmes de location de vélos en libre-service de JCDecaux - récupérées via leur API.  
+Ces données sont actualisées toutes les secondes.  
+L'application est hébergée sur Heroku.  
 '''
 
 
@@ -369,13 +364,14 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(external_stylesheets=external_stylesheets)
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 server = app.server
+app.title = 'JCDecaux Bikes Tracking'
 
 
 app.layout = html.Div(children=[
         refresher(),
         generate_alert(),
         html.P(id='live-update-text'),
-        html.H1('JCDecaux Worldwide Bike Rantal Dashboard', style=dict(textAlign = 'center')),
+        html.H1('JCDecaux Worldwide Bike Share Service Dashboard', style=dict(textAlign = 'center')),
         html.H4('Projet de Big Data Architecture', style=dict(textAlign = 'center')),
         dcc.Markdown(markdown_text),
         html.H2(id='counter_text', style={'fontWeight':'bold'}),
@@ -504,7 +500,7 @@ def update_graph(n_intervals):
         hoverinfo= 'y'
         )],
         layout=go.Layout(
-        title='Worldwide Active Bikers Evolution Real-Time',
+        title='Worldwide Active Bikers Real-Time Evolution',
         # margin=go.layout.Margin(l=0, pad=50)
         )
     )
