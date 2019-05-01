@@ -9,3 +9,7 @@ Don't hesitate to ask us the app credentials.
 Local demo :
 
 ![demo](https://github.com/Azzerty23/velib/tree/master/demo/demo.gif "Local demo")
+
+Focus on the map :
+
+![map](https://github.com/Azzerty23/velib/tree/master/demo/map.gif "Map")
