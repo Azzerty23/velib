@@ -13,7 +13,3 @@ Local demo :
 Focus on the map :
 
 ![map](https://github.com/Azzerty23/velib/tree/master/demo/map.gif "Map")
-
-Test :
-
-![demo](https://github.com/Azzerty23/velib/tree/master/demo/map_low.gif "Map test")
