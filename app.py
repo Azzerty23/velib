@@ -72,6 +72,7 @@ def get_stations(url_stations):
         #    return data_consumer1
 
        data_stations = pd.read_json(rawData)
+       data_stations.dropna(axis=0, inplace=True)
        data_stations.iloc[:,7] = data_stations.iloc[:,7].map(lambda x : datetime.datetime.fromtimestamp(x/1000.0))
        data_stations = data_stations.assign(lat= data_stations.position.map(lambda x : x['lat']), long= data_stations.position.map(lambda x : x['lng']))
        # data_stations = data_stations.reindex(columns=['address', 'available_bike_stands', 'available_bikes', 'banking',
